@@ -4,13 +4,95 @@ from sqlalchemy.exc import IntegrityError
 from datetime import datetime
 from flask import jsonify
 from werkzeug.security import generate_password_hash, check_password_hash
-
+from flask_mail import Mail, Message
+import random
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'your_secret_key'
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///voting.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+
+# Flask-Mail configuration
+app.config['MAIL_SERVER'] = 'smtp.gmail.com'
+app.config['MAIL_PORT'] = 465
+app.config['MAIL_USERNAME'] = 'yogendrachaurasiya30@gmail.com'
+app.config['MAIL_PASSWORD'] = 'rwmvymykfioubkig'
+app.config['MAIL_USE_TLS'] = False
+app.config['MAIL_USE_SSL'] = True
+
 db = SQLAlchemy(app)
+mail = Mail(app)
+
+# Generate OTP
+def generate_otp():
+    otp = ""
+    for _ in range(6):
+        otp += str(random.randint(0, 9))
+    return otp
+
+class Student(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(100), nullable=False)
+    email = db.Column(db.String(100), nullable=False, unique=True)
+    semester = db.Column(db.Integer, nullable=False)
+    student_id = db.Column(db.String(20), nullable=False, unique=True)
+
+@app.route('/')
+def user_index():
+    return redirect(url_for('userLogin'))
+
+@app.route('/userLogin', methods=['GET', 'POST'])
+def userLogin():
+    if request.method == 'POST':
+        email = request.form['email']
+        user = Student.query.filter_by(email=email).first()
+        if user:
+            otp = generate_otp()
+            session['otp'] = otp
+            session['email'] = email
+            send_otp_email(email, otp)
+            return redirect(url_for('verify_otp'))
+        else:
+            return redirect(url_for('userRegister'))
+    return render_template('userLogin.html')
+
+@app.route('/verify_otp', methods=['GET', 'POST'])
+def verify_otp():
+    if 'otp' in session and 'email' in session:
+        if request.method == 'POST':
+            otp_entered = request.form['otp']
+            if otp_entered == session['otp']:
+                session.pop('otp', None)
+                session.pop('email', None)
+                return redirect(url_for('index'))
+            else:
+                flash('Invalid OTP. Please try again.', 'error')
+                return redirect(url_for('verify_otp'))
+        return render_template('verify_otp.html')
+    else:
+        return redirect(url_for('userLogin'))
+
+def generate_otp():
+    return str(random.randint(100000, 999999))
+
+def send_otp_email(email, otp):
+    msg = Message('OTP Verification', sender='yogendrachaurasiya30@example.com', recipients=[email])
+    msg.body = f'Your OTP for login is: {otp}'
+    mail.send(msg)
+
+@app.route('/userRegister', methods=['GET', 'POST'])
+def userRegister():
+    if request.method == 'POST':
+        name = request.form['name']
+        email = request.form['email']
+        semester = request.form['semester']
+        student_id = request.form['student_id']
+
+        new_student = Student(name=name, email=email, semester=semester, student_id=student_id)
+        db.session.add(new_student)
+        db.session.commit()
+        return redirect(url_for('userLogin'))
+    return render_template('userRegister.html')
 
 
 class Admin(db.Model):
@@ -30,8 +112,6 @@ def admin():
     else:
         # If admin is not logged in, redirect to the login page
         return redirect(url_for('login'))
-
-
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -56,9 +136,6 @@ def login():
 
     # Render the login page with the error message
     return render_template('login.html', error=error)
-
-
-
 
 
 @app.route('/register', methods=['GET', 'POST'])
@@ -120,7 +197,7 @@ class Candidate(db.Model):
     election_id = db.Column(db.Integer, db.ForeignKey('election.id'), nullable=False)
 
 
-@app.route('/')
+@app.route('/index')
 def index():
     candidates = Candidate.query.all()
     return render_template('index.html', candidates=candidates)
