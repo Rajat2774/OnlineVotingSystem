@@ -1,0 +1,71 @@
+body,
+html {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+}
+
+.background-image {
+    /* Set background image */
+    background-image: url('bg.png');
+    /* Replace 'path/to/your/image.jpg' with the path to your image */
+    /* Set background image size */
+    background-size: cover;
+    /* Cover the entire viewport */
+    /* Center the background image */
+    background-position: center;
+    /* Fix the background image to prevent scrolling */
+    background-attachment: fixed;
+    /* Styles for content within the body */
+    color: white;
+    text-align: center;
+    padding: 20px;
+}
+
+.navbar-custom {
+    background-color: #191970;
+    width: 100%;
+    /* Make the navbar full width */
+}
+
+.container {
+    text-align: justify;
+    /* Justify the text in the container */
+    max-width: 800px;
+    /* Set maximum width for content */
+    margin: 0 auto;
+    /* Center the container horizontally */
+    padding: 20px;
+}
+
+h1 {
+    color: #FF7F11;
+    /* Heading color */
+}
+
+p {
+    color: #ffd5c2;
+    /* Paragraph color */
+}
+
+.home-container {
+    text-align: center;
+    background-color: #03254E;
+    /* Set background color for the pamphlet container */
+    border: 1px solid #ced4da;
+    /* Add border */
+    border-radius: 10px;
+    /* Add border radius for rounded corners */
+    padding: 20px;
+    /* Add padding */
+    margin-top: 20px;
+    /* Add space between navbar and pamphlet container */
+}
+
+.container a {
+    color: white;
+}
+
+.container a:hover {
+    color: #FF7F11;
+}

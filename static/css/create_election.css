@@ -1,0 +1,81 @@
+body,
+html {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+}
+
+.background-image {
+    background-image: url('bg.png');
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
+    color: white;
+    text-align: center;
+}
+
+.navbar-custom {
+    background-color: #191970;
+}
+
+.container {
+    text-align: justify;
+    max-width: 600px;
+    /* Reduced container width */
+    margin: 0 auto;
+    padding: 20px;
+}
+
+.candidates-details {
+    background-color: #03254E;
+    padding: 20px;
+    border-radius: 10px;
+    transition: all 0.3s ease-in-out;
+}
+
+h1 {
+    text-align: center;
+    color: #FF7F11;
+}
+
+form {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-top: 20px;
+}
+
+label {
+    margin-bottom: 10px;
+    color: white;
+}
+
+input[type="text"],
+input[type="number"] {
+    width: 100%;
+    max-width: 400px;
+    /* Reduced input field width */
+    padding: 8px;
+    /* Reduced padding */
+    margin-bottom: 12px;
+    /* Reduced margin */
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    box-sizing: border-box;
+}
+
+button[type="submit"] {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    font-size: 1rem;
+    font-weight: bold;
+    background-color: #1658aa;
+    color: white;
+    cursor: pointer;
+    transition: background-color 0.3s ease-in-out;
+}
+
+button[type="submit"]:hover {
+    background-color: #134385;
+}

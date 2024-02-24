@@ -7,7 +7,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from flask_mail import Mail, Message
 import random
 
-app = Flask(__name__)
+app = Flask(__name__,static_url_path='/static')
 app.config['SECRET_KEY'] = 'your_secret_key'
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///voting.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
@@ -39,7 +39,25 @@ class Student(db.Model):
 
 @app.route('/')
 def user_index():
-    return redirect(url_for('userLogin'))
+    # Redirect to the home page
+    return redirect(url_for('home'))
+
+@app.route('/home')
+def home():
+    # Render the home page template
+    return render_template('home.html')
+
+@app.route('/features')
+def features():
+    return render_template('features.html')
+
+@app.route('/about')
+def about():
+    return render_template('about.html')
+
+@app.route('/signin_layout')
+def signin_layout():
+    return render_template('signin_layout.html')
 
 @app.route('/userLogin', methods=['GET', 'POST'])
 def userLogin():
