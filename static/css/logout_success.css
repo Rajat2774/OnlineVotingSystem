@@ -12,13 +12,20 @@ html {
     background-attachment: fixed;
     color: white;
     text-align: center;
-    /* padding: 20px; */
 }
 
 .navbar-custom {
     background-color: #191970;
-    width: 100%;
 }
+
+
+/* .navbar-brand {
+    margin-left: 20px;
+}
+
+.navbar-nav {
+    margin-right: 20px;
+} */
 
 .container {
     text-align: center;
@@ -37,14 +44,13 @@ p {
     margin-top: 20px;
 }
 
-
-/* .home-container {
+.home-container {
     background-color: #03254E;
     border: 1px solid #ced4da;
     border-radius: 10px;
     padding: 20px;
     margin-top: 20px;
-} */
+}
 
 .container a {
     color: white;
