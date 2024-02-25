@@ -1,16 +1,21 @@
+# app.py
 from flask import Flask, render_template,redirect,url_for,request,redirect, url_for, session,flash
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.exc import IntegrityError
 from datetime import datetime
 from flask import jsonify
-from werkzeug.security import generate_password_hash, check_password_hash
 from flask_mail import Mail, Message
+from werkzeug.utils import secure_filename
+import os
 import random
 
-app = Flask(__name__,static_url_path='/static')
+app = Flask(__name__)
 app.config['SECRET_KEY'] = 'your_secret_key'
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///voting.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+
+UPLOAD_FOLDER = 'static/images'
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
 # Flask-Mail configuration
 app.config['MAIL_SERVER'] = 'smtp.gmail.com'
@@ -23,28 +28,26 @@ app.config['MAIL_USE_SSL'] = True
 db = SQLAlchemy(app)
 mail = Mail(app)
 
-# Generate OTP
-def generate_otp():
-    otp = ""
-    for _ in range(6):
-        otp += str(random.randint(0, 9))
-    return otp
-
 class Student(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100), nullable=False)
     email = db.Column(db.String(100), nullable=False, unique=True)
     semester = db.Column(db.Integer, nullable=False)
-    student_id = db.Column(db.String(20), nullable=False, unique=True)
+    student_id = db.Column(db.String(8), nullable=False, unique=True)
+    has_voted = db.Column(db.Boolean, default=False, nullable=False )
+
+class OTPVerification(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    email = db.Column(db.String(100), unique=True, nullable=False)
+    otp = db.Column(db.String(6), nullable=False)
+    verified = db.Column(db.Boolean, default=False, nullable=False)
 
 @app.route('/')
 def user_index():
-    # Redirect to the home page
     return redirect(url_for('home'))
 
 @app.route('/home')
 def home():
-    # Render the home page template
     return render_template('home.html')
 
 @app.route('/features')
@@ -65,11 +68,23 @@ def userLogin():
         email = request.form['email']
         user = Student.query.filter_by(email=email).first()
         if user:
-            otp = generate_otp()
-            session['otp'] = otp
-            session['email'] = email
-            send_otp_email(email, otp)
-            return redirect(url_for('verify_otp'))
+            otp_verification = OTPVerification.query.filter_by(email=email).first()
+            if not otp_verification or not otp_verification.verified:
+                otp = generate_otp()
+                session['otp'] = otp
+                session['email'] = email  # Store user's email in session
+                send_otp_email(email, otp)
+                # Save or update OTP verification status in the database
+                if not otp_verification:
+                    otp_verification = OTPVerification(email=email, otp=otp)
+                    db.session.add(otp_verification)
+                else:
+                    otp_verification.otp = otp
+                    otp_verification.verified = False
+                db.session.commit()
+                return redirect(url_for('verify_otp'))
+            else:
+                return "You have already logged in and voted."
         else:
             return redirect(url_for('userRegister'))
     return render_template('userLogin.html')
@@ -79,7 +94,11 @@ def verify_otp():
     if 'otp' in session and 'email' in session:
         if request.method == 'POST':
             otp_entered = request.form['otp']
-            if otp_entered == session['otp']:
+            email = session['email']
+            otp_verification = OTPVerification.query.filter_by(email=email).first()
+            if otp_verification and otp_entered == otp_verification.otp:
+                otp_verification.verified = True
+                db.session.commit()
                 session.pop('otp', None)
                 session.pop('email', None)
                 return redirect(url_for('index'))
@@ -111,7 +130,6 @@ def userRegister():
         db.session.commit()
         return redirect(url_for('userLogin'))
     return render_template('userRegister.html')
-
 
 class Admin(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -192,8 +210,6 @@ def logout():
 def logout_success():
     return render_template('logout_success.html')
 
-
-
 class Election(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     election_id = db.Column(db.String(100), unique=True, nullable=False)
@@ -202,7 +218,7 @@ class Election(db.Model):
     ongoing = db.Column(db.Boolean, default=False)
     candidates = db.relationship('Candidate', backref='election', lazy=True)  
 
-    def __init__(self, election_id, name):
+    def _init_(self, election_id, name):
         self.election_id = election_id
         self.name = name
 
@@ -210,27 +226,61 @@ class Candidate(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100), nullable=False)
     description = db.Column(db.Text)
-    image_url = db.Column(db.String(200))
+    image_path = db.Column(db.String(200))
     votes = db.Column(db.Integer, default=0)
     election_id = db.Column(db.Integer, db.ForeignKey('election.id'), nullable=False)
-
 
 @app.route('/index')
 def index():
     candidates = Candidate.query.all()
+    for candidate in candidates:
+        # Construct the image URL based on the image_path stored in the database
+        if candidate.image_path:
+            candidate.image_url = url_for('static', filename='images/' + os.path.basename(candidate.image_path))
+        else:
+            candidate.image_url = None
     return render_template('index.html', candidates=candidates)
 
-# @app.route('/admin', methods=['GET', 'POST'])
-# def admin():
-#     if request.method == 'POST':
-#         num_candidates = int(request.form['num_candidates'])
-#         return render_template('add_candidates.html', num_candidates=num_candidates)
-#     return render_template('admin.html')
+@app.route('/vote', methods=['POST'])
+def vote():
+    if request.method == 'POST':
+        candidate_id = request.form['candidate']
+        candidate = Candidate.query.filter_by(id=candidate_id).first()
+        if candidate:
+            # Increment the vote count for the selected candidate
+            candidate.votes += 1
+            db.session.commit()
+
+            # Get the logged-in user based on the session email
+            email = session.get('email')
+            if email:
+                user = Student.query.filter_by(email=email).first()
+                if user:
+                    # Update the has_voted field to True for the logged-in user
+                    user.has_voted = True
+                    db.session.commit()  # Commit the change to the database
+                    return redirect(url_for('userLogout'))
+                else:
+                    return "User not found"
+            else:
+                return redirect(url_for('userLogout'))
+        else:
+            return "Candidate not found"
+    else:
+        return "Method not allowed"
+
+    
+@app.route('/userLogout')
+def userLogout():
+    return render_template('userLogout.html' )
 
 @app.route('/view_elections')
 def view_elections():
     elections = Election.query.all()
     return render_template('view_elections.html', elections=elections)
+
+def allowed_file(filename):
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in {'png', 'jpg', 'jpeg', 'gif'}
 
 @app.route('/add_candidates/<int:election_id>/<int:num_candidates>', methods=['GET', 'POST'])
 def add_candidates(election_id, num_candidates):
@@ -241,12 +291,18 @@ def add_candidates(election_id, num_candidates):
             for i in range(num_candidates):
                 candidate_name = request.form[f'candidate_name_{i}']
                 candidate_description = request.form[f'candidate_description_{i}']
-                candidate_image_url = request.form[f'candidate_image_url_{i}']
-                candidate = Candidate(name=candidate_name, description=candidate_description, image_url=candidate_image_url, election_id=election_id)
+                # Handle file upload
+                candidate_image = request.files[f'candidate_image_{i}']
+                if candidate_image and allowed_file(candidate_image.filename):
+                    filename = secure_filename(candidate_image.filename)
+                    image_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+                    candidate_image.save(image_path)
+                else:
+                    image_path = None
+                candidate = Candidate(name=candidate_name, description=candidate_description, image_path=image_path, election_id=election_id)
                 db.session.add(candidate)
             db.session.commit()
-        return redirect(url_for('admin'))
-    
+            return redirect(url_for('admin'))
     
 @app.route('/create_election', methods=['GET', 'POST'])
 def create_election():
@@ -295,7 +351,6 @@ def end_session(election_id):
     else:
         return jsonify({'status': 'error', 'message': 'No ongoing voting session'})
 
-
 @app.route('/view_candidates')
 def view_candidates():
     candidates = Candidate.query.all()
@@ -314,12 +369,17 @@ def update_candidate(candidate_id):
         elif request.method == 'POST':
             candidate.name = request.form['candidate_name']
             candidate.description = request.form['candidate_description']
-            candidate.image_url = request.form['candidate_image_url']
+            # Handle file upload
+            candidate_image = request.files['candidate_image']
+            if candidate_image and allowed_file(candidate_image.filename):
+                filename = secure_filename(candidate_image.filename)
+                image_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+                candidate_image.save(image_path)
+                candidate.image_path = image_path
             db.session.commit()
             return redirect(url_for('view_candidates'))
     else:
         return "Candidate not found"
-
 
 @app.route('/delete_candidate/<int:candidate_id>', methods=['POST'])
 def delete_candidate(candidate_id):
@@ -328,9 +388,7 @@ def delete_candidate(candidate_id):
         db.session.delete(candidate)
         db.session.commit()
     return redirect(url_for('view_candidates'))
-
-        
-
+       
 if __name__ == '__main__':
     with app.app_context():
         db.create_all()  # Create database tables if they don't exist

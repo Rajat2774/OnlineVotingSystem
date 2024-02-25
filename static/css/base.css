@@ -6,20 +6,12 @@ html {
 }
 
 .background-image {
-    /* Set background image */
     background-image: url('bg.png');
-    /* Replace 'path/to/your/image.jpg' with the path to your image */
-    /* Set background image size */
     background-size: cover;
-    /* Cover the entire viewport */
-    /* Center the background image */
     background-position: center;
-    /* Fix the background image to prevent scrolling */
     background-attachment: fixed;
-    /* Styles for content within the body */
     color: white;
     text-align: center;
-    /*padding: 20px;*/
 }
 
 .navbar-custom {

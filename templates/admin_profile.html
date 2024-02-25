@@ -26,5 +26,7 @@
     <div>
         <button onclick="window.location.href='/view_elections'">View Elections</button>
     </div>
+    <form action="{{ url_for('logout') }}" method="post">
+    <button type="submit">Logout</button>
 </body>
 </html>

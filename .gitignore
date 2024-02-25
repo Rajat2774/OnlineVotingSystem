@@ -1,0 +1,46 @@
+# Byte-compiled / optimized Python files
+__pycache__/
+*.pyc
+*.pyo
+
+# Virtual environment
+venv/
+env/
+
+# IDE files
+.idea/
+.vscode/
+
+# Logs
+*.log
+
+# Environment variables
+.env
+
+# Compiled Python files
+*.pyc
+
+# Dependencies
+/lib/
+/lib64/
+/local/
+/build/
+/include/
+/bin/
+/docs/
+
+# Uploaded files
+uploads/
+
+# Compiled files
+*.pyc
+
+# SQLite database file
+*.sqlite
+
+# Environment configuration
+.env
+
+# System files
+.DS_Store
+Thumbs.db

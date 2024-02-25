@@ -6,43 +6,29 @@ html {
 }
 
 .background-image {
-    /* Set background image */
     background-image: url('bg.png');
-    /* Replace 'path/to/your/image.jpg' with the path to your image */
-    /* Set background image size */
     background-size: cover;
-    /* Cover the entire viewport */
-    /* Center the background image */
     background-position: center;
-    /* Fix the background image to prevent scrolling */
     background-attachment: fixed;
-    /* Styles for content within the body */
     color: white;
     text-align: center;
-    /* padding: 20px; */
 }
 
 .navbar-custom {
     background-color: #191970;
     width: 100%;
-    /* Make the navbar full width */
 }
 
 .container {
     text-align: justify;
-    /* Justify the text in the container */
     max-width: 800px;
-    /* Set maximum width for content */
     margin: 0 auto;
-    /* Center the container horizontally */
     padding: 20px;
 }
 
 form {
     width: 100%;
-    /* Set the form width to 100% */
     max-width: 400px;
-    /* Set maximum width for the form */
     margin: 0 auto;
     padding: 10px;
     border: 1px solid rgba(255, 255, 255, 0.2);
@@ -53,7 +39,6 @@ form .form-group {
     display: flex;
     flex-direction: column;
     margin-bottom: 10px;
-    /* Add margin between form groups */
 }
 
 form label {
@@ -68,12 +53,10 @@ form button {
     font-size: 1rem;
     font-weight: bold;
     width: 100%;
-    /* Set input and button width to 100% */
 }
 
 form button {
     margin-top: 15px;
-    /* Add margin between button and input */
     background-color: #1658aa;
     color: white;
     cursor: pointer;
@@ -86,7 +69,6 @@ form button:hover {
 
 .row.justify-content-center {
     margin-top: 50px;
-    /* Adjust margin as needed */
 }
 
 .candidates-details {
@@ -95,6 +77,7 @@ form button:hover {
     padding: 20px;
     border-radius: 10px;
     transition: all 0.3s ease-in-out;
+    color: white;
 }
 
 h1 {

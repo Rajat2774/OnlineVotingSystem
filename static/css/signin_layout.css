@@ -7,7 +7,6 @@ html {
 
 .row.justify-content-center {
     margin-top: 50px;
-    /* Adjust margin as needed */
 }
 
 
@@ -15,63 +14,39 @@ html {
 
 .signin-option {
     border: 1px solid #ddd;
-    /* Border style */
     border-radius: 5px;
-    /* Rounded corners */
     padding: 20px;
-    /* Padding around content */
 }
-
-
-/* Adjust spacing between sign-in options */
 
 .signin-option+.signin-option {
     margin-left: 20px;
-    /* Adjust margin as needed */
 }
 
 .admin-signin {
     background-color: #03254E;
-    /* Light gray */
 }
-
-
-/* Background color for Voter Sign In */
 
 .voter-signin {
     background-color: #03254E;
-    /* Lighter gray */
 }
 
 .background-image {
-    /* Set background image */
     background-image: url('bg.png');
-    /* Replace 'path/to/your/image.jpg' with the path to your image */
-    /* Set background image size */
     background-size: cover;
-    /* Cover the entire viewport */
-    /* Center the background image */
     background-position: center;
-    /* Fix the background image to prevent scrolling */
     background-attachment: fixed;
-    /* Styles for content within the body */
     color: white;
     text-align: center;
-    /*padding: 20px;*/
 }
 
 .navbar-custom {
     background-color: #191970;
     width: 100%;
-    /* Make the navbar full width */
 }
 
 .container {
     text-align: justify;
-    /* Justify the text in the container */
     max-width: 800px;
-    /* Set maximum width for content */
     margin: 0 auto;
-    /* Center the container horizontally */
     padding: 20px;
 }

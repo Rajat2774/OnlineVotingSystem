@@ -21,7 +21,6 @@ html {
 .container {
     text-align: justify;
     max-width: 600px;
-    /* Reduced container width */
     margin: 0 auto;
     padding: 20px;
 }
@@ -54,11 +53,8 @@ input[type="text"],
 input[type="number"] {
     width: 100%;
     max-width: 400px;
-    /* Reduced input field width */
     padding: 8px;
-    /* Reduced padding */
     margin-bottom: 12px;
-    /* Reduced margin */
     border: 1px solid #ccc;
     border-radius: 5px;
     box-sizing: border-box;

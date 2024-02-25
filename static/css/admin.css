@@ -25,7 +25,6 @@ html {
 .container {
     text-align: justify;
     max-width: 600px;
-    /* Adjusted container width */
     margin: 0 auto;
     padding: 20px;
 }
@@ -49,14 +48,11 @@ h2 {
 button {
     padding: 10px 20px;
     border: 2px solid #1658aa;
-    /* Add border */
     border-radius: 5px;
     font-size: 1rem;
     font-weight: bold;
     background-color: transparent;
-    /* Set background color to transparent */
     color: #1658aa;
-    /* Set text color */
     cursor: pointer;
     transition: all 0.3s ease-in-out;
     margin: 10px;
@@ -64,7 +60,5 @@ button {
 
 button:hover {
     background-color: #1658aa;
-    /* Change background color on hover */
     color: white;
-    /* Change text color on hover */
 }
