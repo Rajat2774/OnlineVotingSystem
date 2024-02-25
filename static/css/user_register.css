@@ -27,7 +27,7 @@ html {
 }
 
 form {
-    max-width: 400px;
+    max-width: 300px;
     margin: 0 auto;
     padding: 20px;
     border: 1px solid rgba(255, 255, 255, 0.2);
@@ -48,15 +48,15 @@ form label {
 
 form input,
 form button {
-    width: 100%;
     padding: 10px;
+    border: 1px solid #ccc;
     border-radius: 5px;
     font-size: 1rem;
-    font-weight: bold;
 }
 
 form button {
-    margin-top: 20px;
+    align-self: center;
+    width: 50%;
     background-color: #1658aa;
     color: white;
     cursor: pointer;
