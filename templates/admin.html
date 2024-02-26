@@ -9,9 +9,9 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
 </head>
 <body class="background-image">
-    <nav class="navbar navbar-expand-lg navbar-dark navbar-custom">
+    <nav class="navbar navbar-expand-lg navbar-custom">
         <div class="container-fluid">
-            <a class="navbar-brand" href="#">UniVoteHub</a>
+            <a class="navbar-brand" href="{{url_for('home')}}">UniVoteHub</a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
             </button>
@@ -38,18 +38,18 @@
         </div>
     </nav>
     <div class="heading">
-        <h1>Welcome to the Admin Panel</h1>
+        <h1>Admin Panel</h1>
     </div>
     <div class="container">
         <div class="row justify-content-center mt-5">
             <div class="col-md-5 text-center candidates-details">
                 <div>
-                    <h1>Welcome, {{ current_admin.username }}</h1>
-                    <button onclick="window.location.href='/create_election'">Create New Election</button>
+                    <h1>Welcome, {{ current_admin.username }}</h1><br>
+                    <button onclick="window.location.href='/create_election'">Create New Election</button><br><br>
                     <!-- <button onclick="window.location.href='/profile'">View Profile</button> -->
-                    <button onclick="window.location.href='/view_candidates'">View Candidate</button>
-                    <button onclick="window.location.href='/view_elections'">View Election</button>
-                    <button onclick="window.location.href='/view_results'">View Election Results</button>
+                    <button onclick="window.location.href='/view_candidates'">View Candidate</button><br><br>
+                    <button onclick="window.location.href='/view_election_results'">View Election Result</button><br><br>
+                    <!-- <button onclick="window.location.href='/view_results'">View Election Results</button><br><br> -->
                 </div>
             </div>
         </div>

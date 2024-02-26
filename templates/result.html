@@ -1,4 +1,5 @@
-{% comment %} <!DOCTYPE html>
+<!--result.html-->
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -26,6 +27,10 @@
             {% endfor %}
         </tbody>
     </table>
-    <p>The winner of the election is: {{ winner.name }}</p>
+    {% if winner %}
+        <p>The winner of the election is: {{ winner.name }}</p>
+    {% else %}
+        <p>No winner declared yet.</p>
+    {% endif %}
 </body>
-</html> {% endcomment %}
+</html>

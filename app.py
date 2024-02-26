@@ -34,7 +34,7 @@ class Student(db.Model):
     email = db.Column(db.String(100), nullable=False, unique=True)
     semester = db.Column(db.Integer, nullable=False)
     student_id = db.Column(db.String(8), nullable=False, unique=True)
-    has_voted = db.Column(db.Boolean, default=False, nullable=False )
+    student_image = db.Column(db.String(200))
 
 class OTPVerification(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -84,7 +84,7 @@ def userLogin():
                 db.session.commit()
                 return redirect(url_for('verify_otp'))
             else:
-                return "You have already logged in and voted."
+                flash("You have already logged in and voted.")
         else:
             return redirect(url_for('userRegister'))
     return render_template('userLogin.html')
@@ -125,11 +125,33 @@ def userRegister():
         semester = request.form['semester']
         student_id = request.form['student_id']
 
-        new_student = Student(name=name, email=email, semester=semester, student_id=student_id)
-        db.session.add(new_student)
-        db.session.commit()
-        return redirect(url_for('userLogin'))
+        # Handle file upload
+        if 'student_image' in request.files:
+            student_image = request.files['student_image']
+            if student_image.filename != '':
+                filename = secure_filename(student_image.filename)
+                image_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+                student_image.save(image_path)
+            else:
+                image_path = None
+        else:
+            image_path = None
+
+        # Check if the email or rollNo already exists
+        existing_email = Student.query.filter_by(email=email).first()
+        existing_student_id = Student.query.filter_by(student_id=student_id).first()
+
+        if existing_email:
+            flash('User with this email already exists. Please use a different email.', 'error')
+        elif existing_student_id:
+            flash('User with this student ID already exists. Please use a different student ID.', 'error')
+        else:
+            new_student = Student(name=name, email=email, semester=semester, student_id=student_id, student_image=image_path)
+            db.session.add(new_student)
+            db.session.commit()
+            return redirect(url_for('userLogin'))
     return render_template('userRegister.html')
+
 
 class Admin(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -143,10 +165,8 @@ def admin():
         # Get the current admin from the database
         admin_id = session['admin_id']
         current_admin = Admin.query.get(admin_id)
-        # Render the admin dashboard template with the current_admin variable
         return render_template('admin.html', current_admin=current_admin)
     else:
-        # If admin is not logged in, redirect to the login page
         return redirect(url_for('login'))
 
 @app.route('/login', methods=['GET', 'POST'])
@@ -156,21 +176,15 @@ def login():
         username = request.form['username']
         password = request.form['password']
 
-        # Query the database for the admin with the provided username
         admin = Admin.query.filter_by(username=username).first()
         if admin and admin.password == password:
-            # Set the admin's ID in the session
             session['admin_id'] = admin.id
-            # Redirect the admin to the dashboard
             return redirect(url_for('admin'))
         else:
-            # Set error message based on reason for unsuccessful login
             if not admin:
-                error = 'Username not found. Please try again.'
+                flash('Username not found. Please try again.')
             else:
-                error = 'Incorrect password. Please try again.'
-
-    # Render the login page with the error message
+                flash('Incorrect password. Please try again.')
     return render_template('login.html', error=error)
 
 
@@ -181,31 +195,23 @@ def register():
         username = request.form['username']
         password = request.form['password']
 
-        # Check if the username is already taken
         existing_admin = Admin.query.filter_by(username=username).first()
         if existing_admin:
-            error = 'Username already exists. Please choose a different one.'
+            flash('Username already exists. Please choose a different one.')
         else:
-            # Create a new admin
             new_admin = Admin(username=username, password=password)
             db.session.add(new_admin)
             db.session.commit()
-            # Redirect to the login page on successful registration
             return redirect(url_for('login'))
-
-    # Render the registration page with the error message
     return render_template('register.html', error=error)
 
 
 @app.route('/logout', methods=['GET', 'POST'])
 def logout():
     if request.method == 'POST' or request.method == 'GET':
-        # Clear the admin ID from the session
         session.pop('admin_id', None)
-        # Render the logout success template
         return render_template('logout_success.html')
 
-# Add a route for the logout success page
 @app.route('/logout/success')
 def logout_success():
     return render_template('logout_success.html')
@@ -213,7 +219,7 @@ def logout_success():
 class Election(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     election_id = db.Column(db.String(100), unique=True, nullable=False)
-    name = db.Column(db.String(100), nullable=False)# Add 'name' attribute
+    name = db.Column(db.String(100), nullable=False)
     start_time = db.Column(db.DateTime, default=datetime.utcnow)
     ongoing = db.Column(db.Boolean, default=False)
     candidates = db.relationship('Candidate', backref='election', lazy=True)  
@@ -234,7 +240,6 @@ class Candidate(db.Model):
 def index():
     candidates = Candidate.query.all()
     for candidate in candidates:
-        # Construct the image URL based on the image_path stored in the database
         if candidate.image_path:
             candidate.image_url = url_for('static', filename='images/' + os.path.basename(candidate.image_path))
         else:
@@ -247,18 +252,15 @@ def vote():
         candidate_id = request.form['candidate']
         candidate = Candidate.query.filter_by(id=candidate_id).first()
         if candidate:
-            # Increment the vote count for the selected candidate
             candidate.votes += 1
             db.session.commit()
 
-            # Get the logged-in user based on the session email
             email = session.get('email')
             if email:
                 user = Student.query.filter_by(email=email).first()
                 if user:
-                    # Update the has_voted field to True for the logged-in user
                     user.has_voted = True
-                    db.session.commit()  # Commit the change to the database
+                    db.session.commit()
                     return redirect(url_for('userLogout'))
                 else:
                     return "User not found"
@@ -312,23 +314,15 @@ def create_election():
         num_candidates = int(request.form['num_candidates'])
 
         try:
-            # Create new election within the application context
             with app.app_context():
                 new_election = Election(election_id=election_id, name=election_name)
                 db.session.add(new_election)
                 db.session.commit()
-                # Reload the new election instance to ensure it's bound to the session
                 db.session.refresh(new_election)
         except IntegrityError as e:
-            # Rollback the session to prevent partial changes
             db.session.rollback()
-            # Handle the IntegrityError by displaying a user-friendly message
             return "Failed to create election. An election with the same ID already exists."
-
-        # If the election is created successfully, redirect to the page for adding candidates
         return redirect(url_for('add_candidates', election_id=new_election.id, num_candidates=num_candidates))
-
-    # If the request method is GET, render the create new election form
     return render_template('create_election.html')
 
 @app.route('/start_session/<int:election_id>')
@@ -356,8 +350,15 @@ def view_candidates():
     candidates = Candidate.query.all()
 
     if not candidates:
-        return render_template('no_candidates_found.html')  # Render a template for no candidates found
-
+        return render_template('no_candidates_found.html')
+    
+    candidates_with_images = []
+    for candidate in candidates:
+        if candidate.image_path:
+            candidate_image_url = url_for('static', filename=candidate.image_path)
+        else:
+            candidate_image_url = None
+        candidates_with_images.append({'candidate': candidate, 'image_url': candidate_image_url})
     return render_template('view_candidates.html', candidates=candidates)
 
 @app.route('/update_candidate/<int:candidate_id>', methods=['GET', 'POST'])
@@ -391,5 +392,5 @@ def delete_candidate(candidate_id):
        
 if __name__ == '__main__':
     with app.app_context():
-        db.create_all()  # Create database tables if they don't exist
+        db.create_all()
     app.run(debug=True)

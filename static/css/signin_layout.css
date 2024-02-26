@@ -23,24 +23,25 @@ html {
 }
 
 .admin-signin {
-    background-color: #03254E;
+    background-color: #CCD3CA;
 }
 
 .voter-signin {
-    background-color: #03254E;
+    background-color: #CCD3CA;
 }
 
 .background-image {
-    background-image: url('bg.png');
+    background-color: #F5E8DD;
+    /* background-image: url('bg.png'); */
     background-size: cover;
     background-position: center;
     background-attachment: fixed;
-    color: white;
+    color: black;
     text-align: center;
 }
 
 .navbar-custom {
-    background-color: #191970;
+    background-color: #B5C0D0;
     width: 100%;
 }
 

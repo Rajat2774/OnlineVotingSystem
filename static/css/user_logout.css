@@ -6,17 +6,18 @@ html {
 }
 
 .background-image {
-    background-image: url('bg.png');
+    background-color: #F5E8DD;
+    /* background-image: url('bg.png'); */
     background-size: cover;
     background-position: center;
     background-attachment: fixed;
-    color: white;
+    color: black;
     text-align: center;
     padding: 20px;
 }
 
 .navbar-custom {
-    background-color: #191970;
+    background-color: #B5C0D0;
     width: 100%;
 }
 
@@ -37,17 +38,9 @@ p {
 
 .home-container {
     text-align: center;
-    background-color: #03254E;
+    background-color: #CCD3CA;
     border: 1px solid #ced4da;
     border-radius: 10px;
     padding: 20px;
     margin-top: 20px;
-}
-
-.container a {
-    color: white;
-}
-
-.container a:hover {
-    color: #FF7F11;
 }
