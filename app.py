@@ -390,6 +390,25 @@ def delete_candidate(candidate_id):
         db.session.commit()
     return redirect(url_for('view_candidates'))
        
+
+
+@app.route('/result')
+def result():
+    candidates = Candidate.query.all()
+    winner = None
+    max_votes = 0
+    for candidate in candidates:
+        if candidate.image_path:
+            candidate.image_url = url_for('static', filename='images/' + os.path.basename(candidate.image_path))
+        else:
+            candidate.image_url = None
+        if candidate.votes > max_votes:
+            max_votes = candidate.votes
+            winner = candidate
+    return render_template('result.html', candidates=candidates, winner=winner)
+
+
+
 if __name__ == '__main__':
     with app.app_context():
         db.create_all()
