@@ -27,11 +27,15 @@ html {
     padding: 20px;
 }
 
+h1 {
+    color: #FF7F11;
+}
+
 p {
     color: black;
 }
 
-.home-container {
+.about-container {
     background-color: #CCD3CA;
     border: 1px solid #ced4da;
     border-radius: 10px;
@@ -55,19 +59,4 @@ button {
 button:hover {
     background-color: #1658aa;
     color: white;
-}
-
-.btn-watch-demo {
-    background-color: #007bff;
-    color: white;
-    border: none;
-    border-radius: 5px;
-    padding: 10px 20px;
-    font-size: 18px;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
-}
-
-.btn-watch-demo:hover {
-    background-color: #0056b3;
 }

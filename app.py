@@ -54,6 +54,10 @@ def home():
 def features():
     return render_template('features.html')
 
+@app.route('/demo')
+def demo():
+    return render_template('demo.html')
+
 @app.route('/about')
 def about():
     return render_template('about.html')
